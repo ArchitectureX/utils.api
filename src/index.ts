@@ -10,7 +10,7 @@ type Args = {
 const api = {
   fields(fields: string, tableFields: any): any {
     const fieldArray: string[] = fields.split(',')
-    let result: any = {}
+    const result: any = {}
 
     fieldArray.forEach((field) => {
       if (tableFields[field]) {
