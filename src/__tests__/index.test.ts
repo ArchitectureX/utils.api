@@ -49,7 +49,7 @@ describe('api', () => {
     it('handles successful response', () => {
       const response = api.handleResponse({ data: 'some data', cache: true, status: 200 })
       expect(response).toEqual({
-        system: { cache: true, error: false, status: 200 },
+        system: { cache: true, fields: [], error: false, status: 200 },
         response: { data: 'some data' }
       })
     })
@@ -57,7 +57,7 @@ describe('api', () => {
     it('handles error response', () => {
       const response = api.handleResponse({ error: 'some error', cache: false, status: 500 })
       expect(response).toEqual({
-        system: { cache: false, error: true, status: 500 },
+        system: { cache: false, fields: [], error: true, status: 500 },
         response: { error: 'some error' }
       })
     })
