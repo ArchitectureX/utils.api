@@ -3,6 +3,7 @@ type RequestBody = { [key: string]: any }
 type Args = {
   data?: any
   error?: any
+  fields?: any
   cache?: boolean
   status?: number
 }
@@ -88,10 +89,10 @@ const api = {
         console.error('API call failed:', data)
     }
   },
-  handleResponse({ data, error, cache = false, status = 200 }: Args) {
+  handleResponse({ data, fields = {}, error, cache = false, status = 200 }: Args) {
     if (error) {
       return {
-        system: { cache, error: true, status: status || 500 },
+        system: { cache, fields: Object.keys(fields), error: true, status: status || 500 },
         response: {
           error
         }
@@ -99,7 +100,7 @@ const api = {
     }
 
     return {
-      system: { cache, error: false, status: status || 200 },
+      system: { cache, fields: Object.keys(fields), error: false, status: status || 200 },
       response: {
         data
       }
