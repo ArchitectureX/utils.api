@@ -16,7 +16,6 @@ type Options = {
 
 const api = {
   async fetch(url: string, options: Options): Promise<any> {
-    const hasCache = options.cache !== 'no-cache'
     const { method = 'GET', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options
     const fetchOptions: any = {
       method,
@@ -34,10 +33,7 @@ const api = {
       if (response.ok) {
         const data = await response.json()
 
-        return api.handleResponse({
-          data,
-          cache: hasCache
-        })
+        return data
       } else {
         await api.handleError(response)
         return api.handleResponse({ error: response.statusText })
