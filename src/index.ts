@@ -8,6 +8,18 @@ type Args = {
 }
 
 const api = {
+  fields(fields: string, tableFields: any): any {
+    const fieldArray: string[] = fields.split(',')
+    let result: any = {}
+
+    fieldArray.forEach((field) => {
+      if (tableFields[field]) {
+        result[field] = tableFields[field]
+      }
+    })
+
+    return result
+  },
   async get(url: string, headers?: RequestHeaders) {
     try {
       const response = await fetch(url, {
