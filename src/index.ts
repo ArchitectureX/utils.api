@@ -7,8 +7,46 @@ type Args = {
   cache?: boolean
   status?: number
 }
+type Options = {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
+  headers?: RequestHeaders
+  body?: RequestBody
+}
 
 const api = {
+  async fetch(url: string, options: Options): Promise<any> {
+    const hasCache = options.cache !== 'no-cache'
+    const { method = 'GET', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options
+    const fetchOptions: any = {
+      method,
+      cache,
+      headers
+    }
+
+    if (body) {
+      fetchOptions.body = JSON.stringify(body)
+    }
+
+    try {
+      const response = await fetch(url, fetchOptions)
+
+      if (response.ok) {
+        const data = await response.json()
+
+        return api.handleResponse({
+          data,
+          cache: hasCache
+        })
+      } else {
+        await api.handleError(response)
+        return api.handleResponse({ error: response.statusText })
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error)
+      return api.handleResponse({ error })
+    }
+  },
   fields(fields: string, tableFields: any): any {
     const fieldArray: string[] = fields.split(',')
     const result: any = {}
