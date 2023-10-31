@@ -128,6 +128,7 @@ const api = {
       return {
         system: { cache, fields: Object.keys(fields), error: true, status: status || 500 },
         response: {
+          ok: false,
           error
         }
       }
@@ -136,6 +137,7 @@ const api = {
     return {
       system: { cache, fields: Object.keys(fields), error: false, status: status || 200 },
       response: {
+        ok: true,
         data
       }
     }
