@@ -12,6 +12,7 @@ type Options = {
   cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
   headers?: RequestHeaders
   body?: RequestBody
+  addLocalHost?: boolean
 }
 
 const api = {
@@ -25,6 +26,10 @@ const api = {
 
     if (body) {
       fetchOptions.body = JSON.stringify(body)
+    }
+
+    if (options?.addLocalHost) {
+      url = `http://localhost:3000${url}`
     }
 
     try {
