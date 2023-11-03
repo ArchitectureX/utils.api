@@ -15,8 +15,8 @@ type Options = {
 }
 
 const api = {
-  async fetch(url: string, options: Options): Promise<any> {
-    const { method = 'GET', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options
+  async fetch(url: string, options?: Options): Promise<any> {
+    const { method = 'GET', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
       cache,
