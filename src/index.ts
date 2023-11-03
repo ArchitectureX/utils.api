@@ -8,6 +8,7 @@ type Args = {
   status?: number
 }
 type Options = {
+  credentials?: 'include' | 'omit' | 'same-origin'
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
   headers?: RequestHeaders
@@ -17,11 +18,12 @@ type Options = {
 
 const api = {
   async fetch(url: string, options?: Options): Promise<any> {
-    const { method = 'GET', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
+    const { method = 'GET', credentials = 'omit', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
       cache,
-      headers
+      headers,
+      credentials
     }
 
     if (body) {
