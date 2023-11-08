@@ -13,12 +13,13 @@ type Options = {
   cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
   headers?: RequestHeaders
   body?: RequestBody
+  fields?: string[]
   addLocalHost?: boolean
 }
 
 const api = {
   async fetch(url: string, options?: Options): Promise<any> {
-    const { method = 'GET', credentials = 'omit', cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
+    const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
       cache,
@@ -32,6 +33,10 @@ const api = {
 
     if (options?.addLocalHost) {
       url = `http://localhost:3000${url}`
+    }
+
+    if (fields.length) {
+      url = `${url}?fields=${fields.join(',')}`
     }
 
     try {
