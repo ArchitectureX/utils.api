@@ -17,8 +17,22 @@ type Options = {
   addLocalHost?: boolean
 }
 
+type ApiResponse<T> = {
+  system: {
+    cache: boolean
+    fields: string[]
+    error: boolean
+    status: number
+  };
+  response: {
+    ok: boolean
+    error?: any
+    data?: T
+  };
+};
+
 const api = {
-  async fetch(url: string, options?: Options): Promise<any> {
+  async fetch<T = any>(url: string, options?: Options): Promise<ApiResponse<T>> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -43,9 +57,20 @@ const api = {
       const response = await fetch(url, fetchOptions)
 
       if (response.ok) {
-        const data = await response.json()
+        const data: T = await response.json()
 
-        return data
+        return {
+          system: {
+            cache: cache !== 'no-cache' && cache !== 'no-store',
+            fields,
+            error: false,
+            status: response.status
+          },
+          response: {
+            ok: true,
+            data
+          }
+        }
       } else {
         await api.handleError(response)
         return api.handleResponse({
