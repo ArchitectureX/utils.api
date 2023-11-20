@@ -1,11 +1,11 @@
 type RequestHeaders = { [key: string]: string }
 type RequestBody = { [key: string]: any }
 type Args = {
-  data?: any
-  error?: any
-  fields?: any
-  cache?: boolean
-  status?: number
+  data?: any;
+  fields?: { [key: string]: any };
+  error?: { code: string; message: string; status?: number };
+  cache?: boolean;
+  status?: number;
 }
 type Options = {
   credentials?: 'include' | 'omit' | 'same-origin'
@@ -48,11 +48,23 @@ const api = {
         return data
       } else {
         await api.handleError(response)
-        return api.handleResponse({ error: response.statusText })
+        return api.handleResponse({
+          error: {
+            code: response.status.toString(),
+            message: response.statusText,
+            status: response.status
+          }
+        })
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
-      return api.handleResponse({ error })
+      return api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: error?.toString() || 'Server error',
+          status: 500
+        }
+      })
     }
   },
   fields(fields: string, tableFields: any): any {
@@ -77,7 +89,13 @@ const api = {
       return response.json()
     } catch (error) {
       console.error('Failed to fetch data:', error)
-      throw error
+      return api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: error?.toString() || 'Server error',
+          status: 500
+        }
+      })
     }
   },
   async post(url: string, data: RequestBody, headers?: RequestHeaders) {
@@ -91,7 +109,13 @@ const api = {
       return response.json()
     } catch (error) {
       console.error('Failed to post data:', error)
-      throw error
+      return api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: error?.toString() || 'Server error',
+          status: 500
+        }
+      })
     }
   },
   async put(url: string, data: RequestBody, headers?: RequestHeaders) {
@@ -105,7 +129,13 @@ const api = {
       return response.json()
     } catch (error) {
       console.error('Failed to update data:', error)
-      throw error
+      return api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: error?.toString() || 'Server error',
+          status: 500
+        }
+      })
     }
   },
   async delete(url: string, headers?: RequestHeaders) {
@@ -118,7 +148,13 @@ const api = {
       return response.json()
     } catch (error) {
       console.error('Failed to delete data:', error)
-      throw error
+      return api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: error?.toString() || 'Server error',
+          status: 500
+        }
+      })
     }
   },
   async handleError(response: Response) {
@@ -138,10 +174,16 @@ const api = {
   handleResponse({ data, fields = {}, error, cache = false, status = 200 }: Args) {
     if (error) {
       return {
-        system: { cache, fields: Object.keys(fields), error: true, status: status || 500 },
+        system: { cache, fields: Object.keys(fields), error: true, status: error.status || 500 },
         response: {
           ok: false,
-          error
+          error: {
+            error: {
+              code: error.code,
+              message: error.message
+            },
+            status: error.status || 500
+          }
         }
       }
     }
