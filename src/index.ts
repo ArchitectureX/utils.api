@@ -17,7 +17,7 @@ type Options = {
   addLocalHost?: boolean
 }
 
-type ApiResponse<T> = {
+type ApiResponse<T = object> = {
   system: {
     cache: boolean
     fields: string[]
@@ -27,7 +27,7 @@ type ApiResponse<T> = {
   response: {
     ok: boolean
     error?: any
-    data?: T
+    data: T
   };
 };
 
@@ -73,7 +73,7 @@ const api = {
         }
       } else {
         await api.handleError(response)
-        return api.handleResponse({
+        return api.handleResponse<T>({
           error: {
             code: response.status.toString(),
             message: response.statusText,
@@ -83,7 +83,7 @@ const api = {
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
-      return api.handleResponse({
+      return api.handleResponse<T>({
         error: {
           code: 'SERVER_ERROR',
           message: error?.toString() || 'Server error',
@@ -104,84 +104,6 @@ const api = {
 
     return result
   },
-  async get(url: string, headers?: RequestHeaders) {
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: headers
-      })
-
-      return response.json()
-    } catch (error) {
-      console.error('Failed to fetch data:', error)
-      return api.handleResponse({
-        error: {
-          code: 'SERVER_ERROR',
-          message: error?.toString() || 'Server error',
-          status: 500
-        }
-      })
-    }
-  },
-  async post(url: string, data: RequestBody, headers?: RequestHeaders) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify(data)
-      })
-
-      return response.json()
-    } catch (error) {
-      console.error('Failed to post data:', error)
-      return api.handleResponse({
-        error: {
-          code: 'SERVER_ERROR',
-          message: error?.toString() || 'Server error',
-          status: 500
-        }
-      })
-    }
-  },
-  async put(url: string, data: RequestBody, headers?: RequestHeaders) {
-    try {
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify(data)
-      })
-
-      return response.json()
-    } catch (error) {
-      console.error('Failed to update data:', error)
-      return api.handleResponse({
-        error: {
-          code: 'SERVER_ERROR',
-          message: error?.toString() || 'Server error',
-          status: 500
-        }
-      })
-    }
-  },
-  async delete(url: string, headers?: RequestHeaders) {
-    try {
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: headers
-      })
-
-      return response.json()
-    } catch (error) {
-      console.error('Failed to delete data:', error)
-      return api.handleResponse({
-        error: {
-          code: 'SERVER_ERROR',
-          message: error?.toString() || 'Server error',
-          status: 500
-        }
-      })
-    }
-  },
   async handleError(response: Response) {
     const data = await response.json()
 
@@ -196,12 +118,13 @@ const api = {
         console.error('API call failed:', data)
     }
   },
-  handleResponse({ data, fields = {}, error, cache = false, status = 200 }: Args) {
+  handleResponse<T = any>({ data, fields = {}, error, cache = false, status = 200 }: Args) {
     if (error) {
       return {
         system: { cache, fields: Object.keys(fields), error: true, status: error.status || 500 },
         response: {
           ok: false,
+          data: {} as T,
           error: {
             code: error.code,
             message: error.message,
@@ -215,7 +138,7 @@ const api = {
       system: { cache, fields: Object.keys(fields), error: false, status: status || 200 },
       response: {
         ok: true,
-        data
+        data: data as T
       }
     }
   }

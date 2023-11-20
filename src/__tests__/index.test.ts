@@ -12,40 +12,6 @@ describe('api', () => {
     fetchMock.resetMocks()
   })
 
-  describe('get', () => {
-    it('fetches data successfully', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify({ data: 'some data' }))
-      const result = await api.get('https://api.example.com/data')
-      expect(result).toEqual({ data: 'some data' })
-    })
-
-    it('throws an error when fetch fails', async () => {
-      fetchMock.mockReject(new Error('fake error message'))
-
-      const response = await api.get('https://api.example.com/data')
-
-      expect(response).toEqual({
-        system: { cache: false, fields: [], error: true, status: 500 },
-        response: {
-          ok: false,
-          error: {
-            code: 'SERVER_ERROR',
-            message: 'Error: fake error message',
-            status: 500
-          }
-        }
-      })
-    })
-  })
-
-  describe('post', () => {
-    it('posts data successfully', async () => {
-      fetchMock.mockResponseOnce(JSON.stringify({ success: true }))
-      const result = await api.post('https://api.example.com/data', { name: 'test' })
-      expect(result).toEqual({ success: true })
-    })
-  })
-
   describe('handleError', () => {
     it('handles a 400 Bad Request', async () => {
       const mockResponse = new Response(JSON.stringify({ message: 'Bad Request' }), {
@@ -82,6 +48,7 @@ describe('api', () => {
         system: { cache: false, fields: [], error: true, status: 500 },
         response: {
           ok: false,
+          data: {},
           error: {
             code: 'SERVER_ERROR',
             message: 'Error: fake error message',
