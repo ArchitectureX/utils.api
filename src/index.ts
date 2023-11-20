@@ -178,10 +178,8 @@ const api = {
         response: {
           ok: false,
           error: {
-            error: {
-              code: error.code,
-              message: error.message
-            },
+            code: error.code,
+            message: error.message,
             status: error.status || 500
           }
         }

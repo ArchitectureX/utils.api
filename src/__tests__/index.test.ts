@@ -21,7 +21,20 @@ describe('api', () => {
 
     it('throws an error when fetch fails', async () => {
       fetchMock.mockReject(new Error('fake error message'))
-      await expect(api.get('https://api.example.com/data')).rejects.toThrow('fake error message')
+
+      const response = await api.get('https://api.example.com/data')
+
+      expect(response).toEqual({
+        system: { cache: false, fields: [], error: true, status: 500 },
+        response: {
+          ok: false,
+          error: {
+            code: 'SERVER_ERROR',
+            message: 'Error: fake error message',
+            status: 500
+          }
+        }
+      })
     })
   })
 
@@ -55,10 +68,26 @@ describe('api', () => {
     })
 
     it('handles error response', () => {
-      const response = api.handleResponse({ error: 'some error', cache: false, status: 500 })
+      const response = api.handleResponse({
+        error: {
+          code: 'SERVER_ERROR',
+          message: 'Error: fake error message',
+          status: 500
+        },
+        cache: false,
+        status: 500
+      })
+
       expect(response).toEqual({
         system: { cache: false, fields: [], error: true, status: 500 },
-        response: { ok: false, error: 'some error' }
+        response: {
+          ok: false,
+          error: {
+            code: 'SERVER_ERROR',
+            message: 'Error: fake error message',
+            status: 500
+          }
+        }
       })
     })
   })
