@@ -16,7 +16,7 @@ describe('api', () => {
     it('handles successful response', () => {
       const response = api.handleResponse({ data: 'some data', cache: true, status: 200 })
       expect(response).toEqual({
-        response: { ok: true, cache: true, status: 200, data: 'some data' }
+        ok: true, cache: true, status: 200, data: 'some data'
       })
     })
 
@@ -32,15 +32,13 @@ describe('api', () => {
       })
 
       expect(response).toEqual({
-        response: {
-          ok: false,
-          cache: false,
-          status: 500,
-          data: {},
-          error: {
-            code: 'SERVER_ERROR',
-            message: 'Error: fake error message'
-          }
+        ok: false,
+        cache: false,
+        status: 500,
+        data: {},
+        error: {
+          code: 'SERVER_ERROR',
+          message: 'Error: fake error message'
         }
       })
     })

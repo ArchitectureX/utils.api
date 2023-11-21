@@ -1,5 +1,7 @@
 type RequestHeaders = { [key: string]: string }
+
 type RequestBody = { [key: string]: any }
+
 type Args = {
   data?: any;
   fields?: { [key: string]: any };
@@ -7,6 +9,7 @@ type Args = {
   cache?: boolean;
   status?: number;
 }
+
 type Options = {
   credentials?: 'include' | 'omit' | 'same-origin'
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -16,21 +19,20 @@ type Options = {
   fields?: string[]
   addLocalHost?: boolean
 }
-type APIResponse<T = object> = {
-  response: {
-    ok: boolean
-    data: T
-    status: number
-    cache: boolean
-    error?: {
-      code: string
-      message?: string
-    }
+
+type APIUtilResponse<T = object> = {
+  ok: boolean
+  data: T
+  status: number
+  cache: boolean
+  error?: {
+    code: string
+    message?: string
   }
 }
 
 const api = {
-  async fetch<T = any>(url: string, options?: Options): Promise<APIResponse<T>> {
+  async fetch<T = any>(url: string, options?: Options): Promise<APIUtilResponse<T>> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -58,13 +60,11 @@ const api = {
         const data: T = await response.json()
 
         return {
-          response: {
-            ok: true,
-            cache: cache !== 'no-cache' && cache !== 'no-store',
-            status: response.status,
-            data,
-            error: undefined
-          }
+          ok: true,
+          cache: cache !== 'no-cache' && cache !== 'no-store',
+          status: response.status,
+          data,
+          error: undefined
         }
       } else {
         return api.handleResponse<T>({
@@ -98,30 +98,26 @@ const api = {
 
     return result
   },
-  handleResponse<T = any>({ data, error, cache = false, status = 200 }: Args): APIResponse<T> {
+  handleResponse<T = object>({ data, error, cache = false, status = 200 }: Args): APIUtilResponse<T> {
     if (error) {
       return {
-        response: {
-          ok: false,
-          cache,
-          status: status || 500,
-          data: {} as T,
-          error: {
-            code: error.code,
-            message: error.message
-          }
+        ok: false,
+        cache,
+        status: status || 500,
+        data: {} as T,
+        error: {
+          code: error.code,
+          message: error.message
         }
       }
     }
 
     return {
-      response: {
-        ok: true,
-        cache,
-        status: status || 200,
-        data: data as T,
-        error: undefined
-      }
+      ok: true,
+      cache,
+      status: status || 200,
+      data: data as T,
+      error: undefined
     }
   }
 }
