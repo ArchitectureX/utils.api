@@ -1,4 +1,4 @@
-import { jest, afterEach, describe, expect, it } from '@jest/globals'
+import { afterEach, describe, expect, it } from '@jest/globals'
 
 import fetchMock from 'jest-fetch-mock'
 
