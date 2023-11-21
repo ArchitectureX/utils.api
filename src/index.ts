@@ -32,7 +32,7 @@ export type APIResponse<T = object> = {
 }
 
 const api = {
-  async fetch<T = any>(url: string, options?: Options): Promise<APIUtilResponse<T>> {
+  async fetch<T = any>(url: string, options?: Options): Promise<APIResponse<T>> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -98,7 +98,7 @@ const api = {
 
     return result
   },
-  handleResponse<T = object>({ data, error, cache = false, status = 200 }: Args): APIUtilResponse<T> {
+  handleResponse<T = object>({ data, error, cache = false, status = 200 }: Args): APIResponse<T> {
     if (error) {
       return {
         ok: false,
