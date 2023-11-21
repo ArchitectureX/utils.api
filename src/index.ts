@@ -17,19 +17,14 @@ type Options = {
   addLocalHost?: boolean
 }
 type APIResponse<T = object> = {
-  system: {
-    cache: boolean
-    fields: string[]
-    error: boolean
-    status: number
-  }
   response: {
     ok: boolean
     data: T
+    status: number
+    cache: boolean
     error?: {
       code: string
       message?: string
-      status?: number
     }
   }
 }
@@ -63,34 +58,30 @@ const api = {
         const data: T = await response.json()
 
         return {
-          system: {
-            cache: cache !== 'no-cache' && cache !== 'no-store',
-            fields,
-            error: false,
-            status: response.status
-          },
           response: {
             ok: true,
-            data
+            cache: cache !== 'no-cache' && cache !== 'no-store',
+            status: response.status,
+            data,
+            error: undefined
           }
         }
       } else {
-        await api.handleError(response)
         return api.handleResponse<T>({
+          status: response.status,
           error: {
             code: response.status.toString(),
-            message: response.statusText,
-            status: response.status
+            message: response.statusText
           }
         })
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
       return api.handleResponse<T>({
+        status: 500,
         error: {
           code: 'SERVER_ERROR',
           message: error?.toString() || 'Server error',
-          status: 500
         }
       })
     }
@@ -107,41 +98,29 @@ const api = {
 
     return result
   },
-  async handleError(response: Response) {
-    const data = await response.json()
-
-    switch (response.status) {
-      case 400:
-        console.error('Bad request:', data)
-        break
-      case 404:
-        console.error('Not found:', data)
-        break
-      default:
-        console.error('API call failed:', data)
-    }
-  },
-  handleResponse<T = any>({ data, fields = {}, error, cache = false, status = 200 }: Args): APIResponse<T> {
+  handleResponse<T = any>({ data, error, cache = false, status = 200 }: Args): APIResponse<T> {
     if (error) {
       return {
-        system: { cache, fields: Object.keys(fields), error: true, status: error.status || 500 },
         response: {
           ok: false,
+          cache,
+          status: status || 500,
           data: {} as T,
           error: {
             code: error.code,
-            message: error.message,
-            status: error.status || 500
+            message: error.message
           }
         }
       }
     }
 
     return {
-      system: { cache, fields: Object.keys(fields), error: false, status: status || 200 },
       response: {
         ok: true,
-        data: data as T
+        cache,
+        status: status || 200,
+        data: data as T,
+        error: undefined
       }
     }
   }
