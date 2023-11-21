@@ -20,7 +20,7 @@ type Options = {
   addLocalHost?: boolean
 }
 
-type APIUtilResponse<T = object> = {
+export type APIResponse<T = object> = {
   ok: boolean
   data: T
   status: number
