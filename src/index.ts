@@ -16,23 +16,26 @@ type Options = {
   fields?: string[]
   addLocalHost?: boolean
 }
-
-type ApiResponse<T = object> = {
+type APIResponse<T = object> = {
   system: {
     cache: boolean
     fields: string[]
     error: boolean
     status: number
-  };
+  }
   response: {
     ok: boolean
-    error?: any
     data: T
-  };
-};
+    error?: {
+      code: string
+      message?: string
+      status?: number
+    }
+  }
+}
 
 const api = {
-  async fetch<T = any>(url: string, options?: Options): Promise<ApiResponse<T>> {
+  async fetch<T = any>(url: string, options?: Options): Promise<APIResponse<T>> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -118,7 +121,7 @@ const api = {
         console.error('API call failed:', data)
     }
   },
-  handleResponse<T = any>({ data, fields = {}, error, cache = false, status = 200 }: Args) {
+  handleResponse<T = any>({ data, fields = {}, error, cache = false, status = 200 }: Args): APIResponse<T> {
     if (error) {
       return {
         system: { cache, fields: Object.keys(fields), error: true, status: error.status || 500 },
