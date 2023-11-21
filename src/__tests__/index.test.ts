@@ -12,24 +12,11 @@ describe('api', () => {
     fetchMock.resetMocks()
   })
 
-  describe('handleError', () => {
-    it('handles a 400 Bad Request', async () => {
-      const mockResponse = new Response(JSON.stringify({ message: 'Bad Request' }), {
-        status: 400
-      })
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-      await api.handleError(mockResponse)
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Bad request:', { message: 'Bad Request' })
-      consoleErrorSpy.mockRestore()
-    })
-  })
-
   describe('handleResponse', () => {
     it('handles successful response', () => {
       const response = api.handleResponse({ data: 'some data', cache: true, status: 200 })
       expect(response).toEqual({
-        system: { cache: true, fields: [], error: false, status: 200 },
-        response: { ok: true, data: 'some data' }
+        response: { ok: true, cache: true, status: 200, data: 'some data' }
       })
     })
 
@@ -45,14 +32,14 @@ describe('api', () => {
       })
 
       expect(response).toEqual({
-        system: { cache: false, fields: [], error: true, status: 500 },
         response: {
           ok: false,
+          cache: false,
+          status: 500,
           data: {},
           error: {
             code: 'SERVER_ERROR',
-            message: 'Error: fake error message',
-            status: 500
+            message: 'Error: fake error message'
           }
         }
       })
