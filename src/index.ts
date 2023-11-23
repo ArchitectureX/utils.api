@@ -20,19 +20,8 @@ type Options = {
   addLocalHost?: boolean
 }
 
-export type APIResponse<T = object> = {
-  ok: boolean
-  data: T
-  status: number
-  cache: boolean
-  error?: {
-    code: string
-    message?: string
-  }
-}
-
 const api = {
-  async fetch<T = any>(url: string, options?: Options): Promise<APIResponse<T>> {
+  async fetch<T = any>(url: string, options?: Options): Promise<any> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -56,34 +45,24 @@ const api = {
     try {
       const response = await fetch(url, fetchOptions)
 
-      if (response.ok) {
-        const data: T = await response.json()
+      const data: T = await response.json()
 
-        return {
-          ok: true,
-          cache: cache !== 'no-cache' && cache !== 'no-store',
-          status: response.status,
-          data,
-          error: undefined
-        }
-      } else {
-        return api.handleResponse<T>({
-          status: response.status,
-          error: {
-            code: response.status.toString(),
-            message: response.statusText
-          }
-        })
+      return {
+        cache: cache !== 'no-cache' && cache !== 'no-store',
+        status: response.status,
+        ...data
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
-      return api.handleResponse<T>({
+      return {
+        ok: false,
+        cache: false,
         status: 500,
         error: {
-          code: 'SERVER_ERROR',
-          message: error?.toString() || 'Server error',
+          code: 'FETCH_ERROR',
+          message: 'fetchError'
         }
-      })
+      }
     }
   },
   fields(fields: string, tableFields: any): any {
@@ -97,28 +76,6 @@ const api = {
     })
 
     return result
-  },
-  handleResponse<T = object>({ data, error, cache = false, status = 200 }: Args): APIResponse<T> {
-    if (error) {
-      return {
-        ok: false,
-        cache,
-        status: status || 500,
-        data: {} as T,
-        error: {
-          code: error.code,
-          message: error.message
-        }
-      }
-    }
-
-    return {
-      ok: true,
-      cache,
-      status: status || 200,
-      data: data as T,
-      error: undefined
-    }
   }
 }
 
