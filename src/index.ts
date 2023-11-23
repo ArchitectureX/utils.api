@@ -2,14 +2,6 @@ type RequestHeaders = { [key: string]: string }
 
 type RequestBody = { [key: string]: any }
 
-// type Args = {
-//   data?: any;
-//   fields?: { [key: string]: any };
-//   error?: { code: string; message: string; status?: number };
-//   cache?: boolean;
-//   status?: number;
-// }
-
 type Options = {
   credentials?: 'include' | 'omit' | 'same-origin'
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -21,7 +13,7 @@ type Options = {
 }
 
 const api = {
-  async fetch<T = any>(url: string, options?: Options): Promise<any> {
+  async fetch<T = any>(url: string, options?: Options): Promise<T> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
       method,
@@ -62,7 +54,7 @@ const api = {
           code: 'FETCH_ERROR',
           message: 'fetchError'
         }
-      }
+      } as T
     }
   },
   fields(fields: string, tableFields: any): any {
