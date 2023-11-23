@@ -47,7 +47,7 @@ const api = {
 
       const data: T = await response.json()
 
-      return {
+      return {
         cache: cache !== 'no-cache' && cache !== 'no-store',
         status: response.status,
         ...data
