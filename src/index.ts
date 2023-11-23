@@ -2,13 +2,13 @@ type RequestHeaders = { [key: string]: string }
 
 type RequestBody = { [key: string]: any }
 
-type Args = {
-  data?: any;
-  fields?: { [key: string]: any };
-  error?: { code: string; message: string; status?: number };
-  cache?: boolean;
-  status?: number;
-}
+// type Args = {
+//   data?: any;
+//   fields?: { [key: string]: any };
+//   error?: { code: string; message: string; status?: number };
+//   cache?: boolean;
+//   status?: number;
+// }
 
 type Options = {
   credentials?: 'include' | 'omit' | 'same-origin'
