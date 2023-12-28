@@ -23,8 +23,9 @@ type FetchRequestConfig = {
 type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig);
 
 const api = {
-  async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<any> {
+  async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<{ [url: string]: any }> {
     let lastResponse: any = null
+    const responses: { [url: string]: any } = {}
 
     for (let request of requests) {
       if (typeof request === 'function') {
@@ -47,6 +48,7 @@ const api = {
       }
 
       lastResponse = await response.json()
+      responses[request.url.replace('http://localhost:3000', '')] = lastResponse;
     }
 
     return lastResponse
