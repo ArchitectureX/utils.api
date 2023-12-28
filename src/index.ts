@@ -30,7 +30,6 @@ const api = {
 
     for (let request of requests) {
       if (typeof request === 'function') {
-        console.log('LAST RESPONSEEE=====>>>>', lastResponse)
         request = request(lastResponse)
       }
 
@@ -54,6 +53,8 @@ const api = {
         responses[request.url.replace('http://localhost:3000', '')] = lastResponse
       } catch (error) {
         errors.push(error instanceof Error ? error : new Error(String(error)))
+
+        break;
       }
     }
 
