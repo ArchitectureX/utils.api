@@ -30,6 +30,7 @@ const api = {
 
     for (let request of requests) {
       if (typeof request === 'function') {
+        console.log('LAST RESPONSEEE=====>>>>', lastResponse)
         request = request(lastResponse)
       }
 
