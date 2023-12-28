@@ -26,6 +26,7 @@ const api = {
   async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<{ [url: string]: any }> {
     let lastResponse: any = null
     const responses: { [url: string]: any } = {}
+    const errors: Error[] = []
 
     for (let request of requests) {
       if (typeof request === 'function') {
@@ -36,22 +37,26 @@ const api = {
         request.url = `http://localhost:3000${request.url}`
       }
 
-      const response = await fetch(request.url, {
-        method: request.method || 'GET',
-        body: request.body ? JSON.stringify(request.body) : null,
-        headers: request.headers || { 'Content-Type': 'application/json' },
-        ...request.options
-      })
+      try {
+        const response = await fetch(request.url, {
+          method: request.method || 'GET',
+          body: request.body ? JSON.stringify(request.body) : null,
+          headers: request.headers || { 'Content-Type': 'application/json' },
+          ...request.options
+        })
 
-      if (!response.ok) {
-        throw new Error(`Fetch to ${request.url} failed: ${response.status}`)
+        if (!response.ok) {
+          throw new Error(`Fetch to ${request.url} failed: ${response.status}`)
+        }
+
+        lastResponse = await response.json()
+        responses[request.url.replace('http://localhost:3000', '')] = lastResponse
+      } catch (error) {
+        errors.push(error instanceof Error ? error : new Error(String(error)))
       }
-
-      lastResponse = await response.json()
-      responses[request.url.replace('http://localhost:3000', '')] = lastResponse;
     }
 
-    return lastResponse
+    return { lastResponse, responses, errors };
   },
   async fetch<T = any>(url: string, options?: Options): Promise<T> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
