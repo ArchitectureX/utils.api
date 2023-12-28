@@ -23,12 +23,16 @@ type FetchRequestConfig = {
 type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig);
 
 const api = {
-  async fetchChain(requests: FetchRequest[]): Promise<any> {
+  async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<any> {
     let lastResponse: any = null
 
     for (let request of requests) {
       if (typeof request === 'function') {
         request = request(lastResponse)
+      }
+
+      if (addLocalHost) {
+        request.url = `http://localhost:3000${request.url}`
       }
 
       const response = await fetch(request.url, {
