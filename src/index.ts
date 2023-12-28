@@ -12,7 +12,41 @@ type Options = {
   addLocalHost?: boolean
 }
 
+type FetchRequestConfig = {
+  url: string
+  method?: string
+  body?: any
+  headers?: HeadersInit
+  options?: RequestInit
+}
+
+type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig);
+
 const api = {
+  async fetchChain(requests: FetchRequest[]): Promise<any> {
+    let lastResponse: any = null
+
+    for (let request of requests) {
+      if (typeof request === 'function') {
+        request = request(lastResponse)
+      }
+
+      const response = await fetch(request.url, {
+        method: request.method || 'GET',
+        body: request.body ? JSON.stringify(request.body) : null,
+        headers: request.headers || { 'Content-Type': 'application/json' },
+        ...request.options
+      })
+
+      if (!response.ok) {
+        throw new Error(`Fetch to ${request.url} failed: ${response.status}`)
+      }
+
+      lastResponse = await response.json()
+    }
+
+    return lastResponse
+  },
   async fetch<T = any>(url: string, options?: Options): Promise<T> {
     const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
     const fetchOptions: any = {
