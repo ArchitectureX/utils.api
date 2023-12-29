@@ -18,15 +18,21 @@ type FetchRequestConfig = {
   body?: any
   headers?: HeadersInit
   options?: RequestInit
+  error?: {
+    code: string
+    message: string
+  }
 }
 
 type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig);
+
+const localhost = 'http://localhost:3000'
 
 const api = {
   async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<{ [url: string]: any }> {
     let lastResponse: any = null
     const responses: { [url: string]: any } = {}
-    const errors: Error[] = []
+    const errors = []
 
     for (let request of requests) {
       if (typeof request === 'function') {
@@ -34,7 +40,7 @@ const api = {
       }
 
       if (addLocalHost) {
-        request.url = `http://localhost:3000${request.url}`
+        request.url = `${localhost}${request.url}`
       }
 
       try {
@@ -46,13 +52,14 @@ const api = {
         })
 
         if (!response.ok) {
-          throw new Error(`Fetch to ${request.url} failed: ${response.status}`)
+          errors.push(request.error || new Error(`Failed to fetch data from ${request.url}`))
+          break;
         }
 
         lastResponse = await response.json()
-        responses[request.url.replace('http://localhost:3000', '')] = lastResponse
+        responses[request.url.replace(localhost, '')] = lastResponse
       } catch (error) {
-        errors.push(error instanceof Error ? error : new Error(String(error)))
+        errors.push(request.error || error)
 
         break;
       }
