@@ -10,6 +10,9 @@ type Options = {
   body?: RequestBody
   fields?: string[]
   addLocalHost?: boolean
+  next?: {
+    tags?: string[]
+  }
 }
 
 type FetchRequestConfig = {
@@ -24,12 +27,15 @@ type FetchRequestConfig = {
   }
 }
 
-type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig);
+type FetchRequest = FetchRequestConfig | ((response: any) => FetchRequestConfig)
 
 const localhost = 'http://localhost:3000'
 
 const api = {
-  async fetchChain(requests: FetchRequest[], addLocalHost?: boolean): Promise<{ [url: string]: any }> {
+  async fetchChain(
+    requests: FetchRequest[],
+    addLocalHost?: boolean
+  ): Promise<{ [url: string]: any }> {
     let lastResponse: any = null
     const responses: { [url: string]: any } = {}
     const errors = []
@@ -53,7 +59,7 @@ const api = {
 
         if (!response.ok) {
           errors.push(request.error || new Error(`Failed to fetch data from ${request.url}`))
-          break;
+          break
         }
 
         lastResponse = await response.json()
@@ -61,14 +67,21 @@ const api = {
       } catch (error) {
         errors.push(request.error || error)
 
-        break;
+        break
       }
     }
 
-    return { lastResponse, responses, errors };
+    return { lastResponse, responses, errors }
   },
   async fetch<T = any>(url: string, options?: Options): Promise<T> {
-    const { method = 'GET', credentials = 'omit', fields = [], cache = 'no-cache', headers = { 'Content-Type': 'application/json' }, body = null } = options || {}
+    const {
+      method = 'GET',
+      credentials = 'omit',
+      fields = [],
+      cache = 'no-cache',
+      headers = { 'Content-Type': 'application/json' },
+      body = null
+    } = options || {}
     const fetchOptions: any = {
       method,
       cache,
