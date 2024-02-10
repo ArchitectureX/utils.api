@@ -87,8 +87,7 @@ const api = {
       method,
       cache: next.tags ? 'force-cache' : cache,
       headers,
-      credentials,
-      next
+      credentials
     }
 
     if (body) {
