@@ -80,13 +80,15 @@ const api = {
       fields = [],
       cache = 'no-cache',
       headers = { 'Content-Type': 'application/json' },
-      body = null
+      body = null,
+      next = {}
     } = options || {}
     const fetchOptions: any = {
       method,
-      cache,
+      cache: next.tags ? 'force-cache' : cache,
       headers,
-      credentials
+      credentials,
+      next
     }
 
     if (body) {
