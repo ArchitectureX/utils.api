@@ -85,7 +85,7 @@ const api = {
     } = options || {}
     const fetchOptions: any = {
       method,
-      cache: next.tags ? 'force-cache' : cache,
+      cache,
       headers,
       credentials,
       next
