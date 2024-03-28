@@ -94,7 +94,12 @@ const api = {
     }
 
     if (body) {
-      fetchOptions.body = bodyType === 'form-data' ? body : JSON.stringify(body)
+      if (bodyType === 'form-data') {
+        fetchOptions.body = body
+        delete fetchOptions.headers['Content-Type']
+      } else {
+        fetchOptions.body = JSON.stringify(body)
+      }
     }
 
     if (options?.addLocalHost) {
