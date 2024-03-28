@@ -8,6 +8,7 @@ type Options = {
   cache?: 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache' | 'only-if-cached'
   headers?: RequestHeaders
   body?: RequestBody
+  bodyType?: 'json' | 'form-data'
   fields?: string[]
   addLocalHost?: boolean
   next?: {
@@ -81,6 +82,7 @@ const api = {
       cache = 'no-cache',
       headers = { 'Content-Type': 'application/json' },
       body = null,
+      bodyType = 'json',
       next = {}
     } = options || {}
     const fetchOptions: any = {
@@ -92,7 +94,7 @@ const api = {
     }
 
     if (body) {
-      fetchOptions.body = JSON.stringify(body)
+      fetchOptions.body = bodyType === 'form-data' ? body : JSON.stringify(body)
     }
 
     if (options?.addLocalHost) {
